@@ -491,9 +491,9 @@ function fullTextSearch(ps: { origin: string, queryText: string })
   const response = postOrDie(
       url, { searchQuery: { queryText: ps.queryText }});
 
-  const responseJson = response.bodyJson();
-  const searchResults = (responseJson as SearchResultsApiResponse).searchResults;
-  assert.ok(searchResults);
+  const responseJson = response.bodyJson() as SearchResultsApiResponse;
+  assert.ok(responseJson.searchResults);
+  assert.ok(_.isArray(responseJson.searchResults));
   return responseJson as SearchResultsApiResponse;
 }
 
