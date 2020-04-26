@@ -20,7 +20,7 @@ package ed.server.security
 import com.debiki.core._
 import com.debiki.core.Prelude._
 import debiki.{EdHttp, Globals}
-import ed.server.http.JsonOrFormDataBody
+import ed.server.http.{DebikiRequest, JsonOrFormDataBody}
 import play.api.mvc.{Cookie, DiscardingCookie, RequestHeader}
 import scala.util.Try
 import EdSecurity._
@@ -725,6 +725,10 @@ class EdSecurity(globals: Globals) {
   def getForbiddenPassword(request: RequestHeader): Option[String] =
     request.queryString.get("forbiddenPassword").flatMap(_.headOption).orElse(
       request.cookies.get("esCoForbiddenPassword").map(_.value))
+
+
+  def hasOkForbiddenPassword(request: DebikiRequest[_]): Boolean =
+    hasOkForbiddenPassword(request.underlying)
 
 
   def hasOkForbiddenPassword(request: RequestHeader): Boolean = {

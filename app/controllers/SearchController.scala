@@ -29,6 +29,7 @@ import javax.inject.Inject
 import play.api.libs.json.{JsObject, JsValue}
 import play.api.mvc.{Action, ControllerComponents, Result}
 import scala.concurrent.Future
+import talkyard.server.api.ThingsFoundJson
 
 
 /** Full text search, for a whole site, or for a site section, e.g. a single
@@ -68,6 +69,7 @@ class SearchController @Inject()(cc: ControllerComponents, edContext: EdContext)
               "pageId" -> pageAndHits.pageId,
               "pageTitle" -> pageAndHits.pageTitle,
               "pageType" -> pageAndHits.pageType.toInt,
+              "urlPath" -> pageAndHits.pagePath.value,
               "hits" -> JsArray(pageAndHits.hitsByScoreDesc.map((hit: SearchHit) => Json.obj(
                 "postId" -> hit.postId,
                 "postNr" -> hit.postNr,
@@ -102,7 +104,7 @@ class SearchController @Inject()(cc: ControllerComponents, edContext: EdContext)
 
     val pretty = (body \ "pretty").asOpt[Boolean].getOrElse(false)
     val searchQueryJson = (body \ "searchQuery").as[JsObject]
-    val q = (searchQueryJson \ "queryText").as[String]
+    val q = (searchQueryJson \ "freetext").as[String]
 
     val searchQuery = parseRawSearchQueryString(q, categorySlug => {
       // BUG (need not fix now): What if many sub communities, same cat slug? [4GWRQA28]
@@ -122,19 +124,7 @@ class SearchController @Inject()(cc: ControllerComponents, edContext: EdContext)
     // relies on those classes.
     dao.fullTextSearch(searchQuery, None, requester, addMarkTagClasses = false) map {
       searchResults: Seq[PageAndHits] =>
-        import play.api.libs.json._
-        OkApiJson(Json.obj(  // Typescript: SearchResultsApiResponse
-          "searchResults" -> searchResults.map((pageAndHits: PageAndHits) => {
-            Json.obj(
-              "pageTitle" -> pageAndHits.pageTitle,
-              "pageUrl" -> s"${request.origin}/-${pageAndHits.pageId}",
-              "postHits" -> JsArray(pageAndHits.hitsByScoreDesc.map((hit: SearchHit) => Json.obj(
-                "isPageTitle" -> JsBoolean(hit.postNr == PageParts.TitleNr),
-                "isPageBody" -> JsBoolean(hit.postNr == PageParts.BodyNr),
-                "htmlWithMarks" -> JsArray(hit.approvedTextWithHighligtsHtml map JsString)
-              ))))
-          })
-        ), pretty = pretty)
+      ThingsFoundJson.makePagesFoundSearchResponse(searchResults, dao)
     }
   }
 
