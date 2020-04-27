@@ -53,6 +53,7 @@ class SubscriberController @Inject()(cc: ControllerComponents, tyCtx: EdContext)
             Result,
             // Or an In and Out stream, for talking with the client.
             Flow[JsValue, JsValue, _]]] = {
+    ??? /*
     import tyCtx.security
     import akka.stream.scaladsl.{Flow, Keep, Sink, Source}
 
@@ -280,7 +281,7 @@ class SubscriberController @Inject()(cc: ControllerComponents, tyCtx: EdContext)
 
         requestersActorProps
       }(tyCtx.globals.actorSystem, tyCtx.akkaStreamMaterializer)))
-      */
+ */     */
   }
 
   private class WebSocketActor(
@@ -301,7 +302,7 @@ class SubscriberController @Inject()(cc: ControllerComponents, tyCtx: EdContext)
       }
 
       val watchbar: BareWatchbar = dao.getOrCreateWatchbar(userId)
-      globals.pubSub.userSubscribed(siteId, user, browserIdData,
+      globals.pubSub.userSubscribed(siteId, user, ???, //browserIdData,
         watchbar.watchedPageIds, self)
     }
 
