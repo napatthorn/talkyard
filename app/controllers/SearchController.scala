@@ -124,7 +124,7 @@ class SearchController @Inject()(cc: ControllerComponents, edContext: EdContext)
     // relies on those classes.
     dao.fullTextSearch(searchQuery, None, requester, addMarkTagClasses = false) map {
       searchResults: Seq[PageAndHits] =>
-      ThingsFoundJson.makePagesFoundSearchResponse(searchResults, dao)
+      ThingsFoundJson.makePagesFoundSearchResponse(searchResults, dao, pretty)
     }
   }
 

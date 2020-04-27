@@ -81,7 +81,11 @@ login -
           - create-site-all-logins.test.ts  TyT5KBWAZ2
     github:
           - create-site-github-oauth-uppercase-email  TyT5AKR2Z95
+    linkedin:
+          - create-site-linkedin.test.ts  T8KA9AW3
     twitter:
+  openauth security:
+          - generate fake login request: TESTS_MISSING
   password user logs in via -
     gmail:
     facebook:

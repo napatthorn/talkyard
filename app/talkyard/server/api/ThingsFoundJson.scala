@@ -32,13 +32,17 @@ import talkyard.server.JsX._
 object ThingsFoundJson {
 
 
-  def makePagesFoundListResponse(topics: Seq[PagePathAndMeta], dao: SiteDao): Result = {
-    makePagesFoundResponseImpl(topics, anySearchResults = Nil, dao)
+  def makePagesFoundListResponse(topics: Seq[PagePathAndMeta], dao: SiteDao,
+        pretty: Boolean): Result = {
+    makePagesFoundResponseImpl(
+        topics, anySearchResults = Nil, dao, pretty = pretty)
   }
 
 
-  def makePagesFoundSearchResponse(searchResults: Seq[PageAndHits], dao: SiteDao): Result = {
-    makePagesFoundResponseImpl(anyPagePathsMetas = Nil, searchResults, dao)
+  def makePagesFoundSearchResponse(searchResults: Seq[PageAndHits], dao: SiteDao,
+        pretty: Boolean): Result = {
+    makePagesFoundResponseImpl(
+        anyPagePathsMetas = Nil, searchResults, dao, pretty = pretty)
   }
 
 
@@ -46,7 +50,7 @@ object ThingsFoundJson {
   //
   private def makePagesFoundResponseImpl(
       anyPagePathsMetas: Seq[PagePathAndMeta], anySearchResults: Seq[PageAndHits],
-      dao: SiteDao): Result = {
+      dao: SiteDao, pretty: Boolean): Result = {
 
     dieIf(anyPagePathsMetas.nonEmpty && anySearchResults.nonEmpty, "TyE40RKUPJR2")
 
@@ -63,20 +67,20 @@ object ThingsFoundJson {
         anyPagePathsMetas flatMap { pagePathMeta: PagePathAndMeta =>
           pageStuffById.get(pagePathMeta.pageId) map { pageStuff =>
              new PageFoundStuff(
-               pagePath = pagePathMeta.path.toNew(
-                 // I hope it's the canonical path? If not, barely matters.
-                 canonical =  true),
-               pageStuff = pageStuff,
-               pageAndSearchHits = None)
+                   pagePath = pagePathMeta.path.toNew(
+                     // I hope it's the canonical path? If not, barely matters.
+                     canonical =  true),
+                   pageStuff = pageStuff,
+                   pageAndSearchHits = None)
           }
         }
       }
       else {
         anySearchResults map { pageAndHits =>
           new PageFoundStuff(
-            pagePath = pageAndHits.pagePath,
-            pageStuff = pageAndHits.pageStuff,
-            pageAndSearchHits = Some(pageAndHits))
+                pagePath = pageAndHits.pagePath,
+                pageStuff = pageAndHits.pageStuff,
+                pageAndSearchHits = Some(pageAndHits))
         }
       }
 
@@ -97,19 +101,20 @@ object ThingsFoundJson {
 
     val siteIdsOrigins = dao.theSiteIdsOrigins()
     val avatarUrlPrefix =
-      siteIdsOrigins.uploadsOrigin +
-        ed.server.UploadsUrlBasePath + siteIdsOrigins.pubId + '/'
+          siteIdsOrigins.uploadsOrigin +
+          ed.server.UploadsUrlBasePath + siteIdsOrigins.pubId + '/'
 
     val jsPagesFound: Seq[JsObject] = pageFoundStuffs map { stuff =>
       val anyCategory = stuff.pageMeta.categoryId.flatMap(categoriesById.get)
-      JsPageFound(stuff, authorIdsByPostId, authorsById,
-        avatarUrlPrefix = avatarUrlPrefix, anyCategory)
+      JsPageFound(
+            stuff, authorIdsByPostId, authorsById,
+            avatarUrlPrefix = avatarUrlPrefix, anyCategory)
     }
 
     // Typescript: SearchQueryResults, and ListQueryResults
     OkApiJson(Json.obj(
       "origin" -> siteIdsOrigins.siteOrigin,
-      "thingsFound" -> jsPagesFound))
+      "thingsFound" -> jsPagesFound), pretty)
   }
 
 
@@ -146,9 +151,9 @@ object ThingsFoundJson {
     pageFoundStuff.pageAndSearchHits.foreach { pageAndHits: PageAndHits =>
       json += "postsFound" -> JsArray(pageAndHits.hitsByScoreDesc map { hit =>
         val anyAuthor: Option[Participant] =
-          authorIdsByPostId.get(hit.postId) flatMap { authorId =>
-            authorsById.get(authorId)
-          }
+              authorIdsByPostId.get(hit.postId) flatMap { authorId =>
+                authorsById.get(authorId)
+              }
         JsPostFound(hit, anyAuthor, avatarUrlPrefix)
       })
     }
@@ -162,7 +167,7 @@ object ThingsFoundJson {
     val category = anyCategory getOrElse { return JsNull }
     Json.obj(
       "name" -> JsString(category.name),
-      "urlPath" -> JsString(s"/-${category.sectionPageId}"))
+      "urlPath" -> JsString(s"/latest/${category.slug}"))
   }
 
 

@@ -81,7 +81,7 @@ class ListController @Inject()(cc: ControllerComponents, edContext: EdContext)
     val topics = dao.listMaySeeTopicsInclPinned(category.id, pageQuery,
       includeDescendantCategories = true, authzCtx, limit = 10)
 
-    ThingsFoundJson.makePagesFoundListResponse(topics, dao)
+    ThingsFoundJson.makePagesFoundListResponse(topics, dao, pretty)
   }
 
 }

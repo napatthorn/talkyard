@@ -155,18 +155,25 @@ interface LookWhere {
 type ThingFound = PageFound | ParticipantFound | TagFound | CategoryFound;
 
 
+
 interface ParticipantFound {
   id: ParticipantId;
+  username?: string;
   fullName?: string;
+  isGroup?: boolean;
+  isGuest?: boolean;
 }
 
 interface GuestFound extends ParticipantFound {
-  fullName: string;
+  username?: undefined; // guests don't have real accounts
+  fullName: string;  // they always have a name or alias though
+  isGroup?: false;
+  isGuest: true;
 }
 
 interface MemberFound extends ParticipantFound {
-  username: string;
-  isGroup?: boolean;
+  username: string;  // members always have usernames
+  isGuest?: false;
 }
 
 interface UserFound extends MemberFound {
@@ -180,17 +187,23 @@ interface GroupFound extends MemberFound {
 
 
 interface PageFound {
-  pageTitle: string;
+  pageId: PageId;
+  title: string;
   urlPath: string;
+  excerpt?: string;
   author?: ParticipantFound;
+  category?: CategoryFound;
   postsFound?: PostFound[];
-  categoryFound?: CategoryFound;
 }
 
 interface PostFound {
   isPageTitle?: boolean;
   isPageBody?: boolean;
   author?: ParticipantFound;
+  // With <mark> tags and html escapes, like:
+  //   ["When you want to <mark>climb</mark> a tall, one hundred meters at least,
+  //    &amp; exciting <mark>tree</tree>, then",
+  //   ... ].
   htmlWithMarks: string[];
 }
 
@@ -289,8 +302,8 @@ type CompoundSearchQuery =
 
 interface SinglSearchQuery {
   freetext?: string;
-  findWhat: FindWhat,
-  lookWhere: LookWhere;
+  findWhat?: FindWhat,
+  lookWhere?: LookWhere;
 };
 
 type SearchQueryApiResponse<T extends ThingFound> = ApiResponse<SearchQueryResults<T>>;

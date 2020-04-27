@@ -699,11 +699,11 @@ trait PostsSiteDaoMixin extends SiteTransaction {
     val query = s"""
       select unique_post_id, created_by_id
       from posts3
-      where site_id = ? and unique_post_id in(${makeInListFor(postIds)})
-      """
+      where site_id = ?
+        and unique_post_id in(${makeInListFor(postIds)}) """
 
-    val values = ArrayBuffer(postIds.toSeq: _*)
-    values.append(siteId)
+    val values = ArrayBuffer(siteId)
+    values.append(postIds.toSeq: _*)
 
     runQueryBuildMap(query, values.toList.map(_.asAnyRef), rs => {
       val postId = rs.getInt("unique_post_id")
