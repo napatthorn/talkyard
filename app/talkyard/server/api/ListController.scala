@@ -52,7 +52,7 @@ class ListController @Inject()(cc: ControllerComponents, edContext: EdContext)
 
     val lookInWhichCategories: Seq[Ref] =
       if (lookWhere.isEmpty) Nil
-      else (listQueryJson \ "inCategories").asOpt[Seq[Ref]] getOrElse Nil
+      else (lookWhere.get \ "inCategories").asOpt[Seq[Ref]] getOrElse Nil
 
     throwUnimplementedIf(lookInWhichCategories.size >= 2,
       "TyE205KDT53", "Currently at most one lookWhere.inCategories can be specified")
@@ -73,7 +73,8 @@ class ListController @Inject()(cc: ControllerComponents, edContext: EdContext)
 
     // Public API, no authentication needed.
     val authzCtx = dao.getForumPublicAuthzContext()
-    var pageQuery = PageQuery(
+    val pageQuery = PageQuery(
+      // Score and bump time, if nothing else specified. [TyT025WKRGJ]
       PageOrderOffset.ByScoreAndBumpTime(offset = None, TopTopicsPeriod.Week),
       PageFilter(PageFilterType.AllTopics, includeDeleted = false),
       includeAboutCategoryPages = false)

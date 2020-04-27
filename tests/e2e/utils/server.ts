@@ -499,8 +499,28 @@ function fullTextSearch<T extends ThingFound>(ps: { origin: string, queryText: s
     pretty: true,
   };
   const responseObj = postOrDie(url, requestBody);
-// freetext
   const responseBody = responseObj.bodyJson() as SearchQueryApiResponse<T>;
+  const result = responseObj.statusCode === 200 && !isApiErrorResponse(responseBody)
+      ? responseBody
+      : die(`POST request failed to ${url} [EsE5GPK02]`, showResponse(responseObj));
+
+  assert.ok(result.thingsFound);
+  assert.ok(_.isArray(result.thingsFound));
+
+  return result;
+}
+
+
+function listQuery<T extends ThingFound>(ps: {
+      origin: string, listQuery: ListQuery, sortOrder?: SortOrder })
+      :  ListQueryResults<T> {
+  const url = ps.origin + '/-/v0/list';
+  const requestBody: ListQueryApiRequest = {
+    listQuery: ps.listQuery,
+    pretty: true,
+  };
+  const responseObj = postOrDie(url, requestBody);
+  const responseBody = responseObj.bodyJson() as ListQueryApiResponse<T>;
   const result = responseObj.statusCode === 200 && !isApiErrorResponse(responseBody)
       ? responseBody
       : die(`POST request failed to ${url} [EsE5GPK02]`, showResponse(responseObj));
@@ -586,6 +606,7 @@ export = {
   assertLastEmailMatches,
   apiV0: {
     fullTextSearch,
+    listQuery,
     upsertUserGetLoginSecret,
     upsertSimple,
     listUsers,

@@ -114,10 +114,10 @@ interface LookWhere {
   emailAddresses?: boolean;
 
   // Find members in these groups.
-  inGroups: MemberRef[];
+  inGroups?: MemberRef[];
 
   // Find members with these badges.
-  withBadges: BadgeRef[];
+  withBadges?: BadgeRef[];
 
   // About a user / group,  or category, or tag, or user badge.
   aboutText?: boolean;
@@ -139,13 +139,13 @@ interface LookWhere {
   pageTypes?: PageType[];
 
   // Find pages in these categories.
-  inCategories: CategoryRef[];
+  inCategories?: CategoryRef[];
 
   // Pages with these tags.
-  withTags: TagRef[];
+  withTags?: TagRef[];
 
   // Posts written by these users or groups.
-  writtenBy: MemberRef[];
+  writtenBy?: MemberRef[];
 };
 
 
